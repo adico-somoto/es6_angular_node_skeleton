@@ -1,19 +1,29 @@
 'use strict';
+
 import express from 'express';
 import config from '../config/environment';
 import User from '../api/user/user.model';
-
 // Passport Configuration
-require('./local/passport').setup(User, config);
-require('./facebook/passport').setup(User, config);
-require('./google/passport').setup(User, config);
-require('./twitter/passport').setup(User, config);
+import localPassportSetup from './local/passport';
+import facebookPassportSetup from './facebook/passport';
+import googlePassportSetup from './google/passport';
+import twiterPassportSetup from './twitter/passport';
+// Routing
+import localRouter from './local';
+import facebookRouter from './facebook';
+import twiterRouter from './twitter';
+import googleRouter from './google';
 
-var router = express.Router();
+localPassportSetup(User, config);
+facebookPassportSetup(User, config);
+googlePassportSetup(User, config);
+twiterPassportSetup(User, config);
 
-router.use('/local', require('./local').default);
-router.use('/facebook', require('./facebook').default);
-router.use('/twitter', require('./twitter').default);
-router.use('/google', require('./google').default);
+const router = express.Router();
+
+router.use('/local', localRouter);
+router.use('/facebook', facebookRouter);
+router.use('/twitter', twiterRouter);
+router.use('/google', googleRouter);
 
 export default router;

@@ -2,18 +2,18 @@
 
 import express from 'express';
 import passport from 'passport';
-import {setTokenCookie} from '../auth.service';
+import { setTokenCookie } from '../auth.service';
 
-var router = express.Router();
+const router = express.Router();
 
 router
   .get('/', passport.authenticate('twitter', {
     failureRedirect: '/signup',
-    session: false
+    session: false,
   }))
   .get('/callback', passport.authenticate('twitter', {
     failureRedirect: '/signup',
-    session: false
+    session: false,
   }), setTokenCookie);
 
 export default router;

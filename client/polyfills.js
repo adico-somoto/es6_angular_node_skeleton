@@ -11,16 +11,12 @@ import 'core-js/es6';
 import 'core-js/es7/reflect';
 // require('zone.js/dist/zone');
 
+const ENV = ENV || 'development'; // eslint-disable-line no-use-before-define
 
-if(!ENV) {
-  var ENV = 'development';
-}
-
-if(ENV === 'production') {
+if (ENV === 'production') {
   // Production
 } else {
   // Development
-
 
   Error.stackTraceLimit = Infinity;
 

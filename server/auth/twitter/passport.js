@@ -1,32 +1,39 @@
-import passport from 'passport';
-import {Strategy as TwitterStrategy} from 'passport-twitter';
+'use strict';
 
-export function setup(User, config) {
+/* eslint-disable no-underscore-dangle */
+
+import passport from 'passport';
+import { Strategy as TwitterStrategy } from 'passport-twitter';
+
+export default function setup(User, config) {
   passport.use(new TwitterStrategy({
     consumerKey: config.twitter.clientID,
     consumerSecret: config.twitter.clientSecret,
-    callbackURL: config.twitter.callbackURL
+    callbackURL: config.twitter.callbackURL,
   },
-  function(token, tokenSecret, profile, done) {
+  (token, tokenSecret, pProfile, done) => {
+    const profile = pProfile;
     profile._json.id = `${profile._json.id}`;
     profile.id = `${profile.id}`;
 
-    User.findOne({'twitter.id': profile.id}).exec()
-      .then(user => {
-        if(user) {
+    User.findOne({ 'twitter.id': profile.id }).exec()
+      .then((user) => {
+        if (user) {
           return done(null, user);
         }
 
-        user = new User({
+        const newUser = new User({
           name: profile.displayName,
           username: profile.username,
           role: 'user',
           provider: 'twitter',
-          twitter: profile._json
+          twitter: profile._json,
         });
-        user.save()
+        newUser.save()
           .then(savedUser => done(null, savedUser))
           .catch(err => done(err));
+
+        return true;
       })
       .catch(err => done(err));
   }));

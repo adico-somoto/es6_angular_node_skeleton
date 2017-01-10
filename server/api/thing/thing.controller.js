@@ -13,10 +13,10 @@
 import jsonpatch from 'fast-json-patch';
 import Thing from './thing.model';
 
-function respondWithResult(res, statusCode) {
-  statusCode = statusCode || 200;
-  return function(entity) {
-    if(entity) {
+function respondWithResult(res, pStatusCode) {
+  const statusCode = pStatusCode || 200;
+  return (entity) => {
+    if (entity) {
       return res.status(statusCode).json(entity);
     }
     return null;
@@ -24,10 +24,10 @@ function respondWithResult(res, statusCode) {
 }
 
 function patchUpdates(patches) {
-  return function(entity) {
+  return (entity) => {
     try {
-      jsonpatch.apply(entity, patches, /*validate*/ true);
-    } catch(err) {
+      jsonpatch.apply(entity, patches, /* validate */ true);
+    } catch (err) {
       return Promise.reject(err);
     }
 
@@ -36,19 +36,20 @@ function patchUpdates(patches) {
 }
 
 function removeEntity(res) {
-  return function(entity) {
-    if(entity) {
+  return (entity) => {
+    if (entity) {
       return entity.remove()
         .then(() => {
           res.status(204).end();
         });
     }
+    return true;
   };
 }
 
 function handleEntityNotFound(res) {
-  return function(entity) {
-    if(!entity) {
+  return (entity) => {
+    if (!entity) {
       res.status(404).end();
       return null;
     }
@@ -56,11 +57,9 @@ function handleEntityNotFound(res) {
   };
 }
 
-function handleError(res, statusCode) {
-  statusCode = statusCode || 500;
-  return function(err) {
-    res.status(statusCode).send(err);
-  };
+function handleError(res, pStatusCode) {
+  const statusCode = pStatusCode || 500;
+  return err => res.status(statusCode).send(err);
 }
 
 // Gets a list of Things
@@ -87,19 +86,29 @@ export function create(req, res) {
 
 // Upserts the given Thing in the DB at the specified ID
 export function upsert(req, res) {
-  if(req.body._id) {
+  /* eslint-disable no-underscore-dangle */
+  if (req.body._id) {
+    /* eslint no-param-reassign: ["error", { "props": false }] */
     delete req.body._id;
   }
-  return Thing.findOneAndUpdate({_id: req.params.id}, req.body, {new: true, upsert: true, setDefaultsOnInsert: true, runValidators: true}).exec()
-
+  /* eslint-enable no-underscore-dangle */
+  return Thing.findOneAndUpdate({
+    _id: req.params.id,
+  }, req.body, {
+    new: true,
+    upsert: true,
+    setDefaultsOnInsert: true,
+    runValidators: true,
+  }).exec()
     .then(respondWithResult(res))
     .catch(handleError(res));
 }
 
 // Updates an existing Thing in the DB
 export function patch(req, res) {
-  if(req.body._id) {
-    delete req.body._id;
+  if (req.body._id) { // eslint-disable-line no-underscore-dangle
+    /* eslint no-param-reassign: ["error", { "props": false }]*/
+    delete req.body._id; // eslint-disable-line no-underscore-dangle
   }
   return Thing.findById(req.params.id).exec()
     .then(handleEntityNotFound(res))

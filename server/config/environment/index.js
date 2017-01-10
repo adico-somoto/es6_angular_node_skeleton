@@ -1,10 +1,18 @@
 'use strict';
-/*eslint no-process-env:0*/
+
+/* eslint no-process-env:0*/
 
 import path from 'path';
 import _ from 'lodash';
+import sharedConfig from './shared';
+import productionConfigPath from './production';
+import developmentConfigPath from './development';
 
-/*function requiredProcessEnv(name) {
+let currentConfig = productionConfigPath;
+if (process.env.NODE_ENV === 'development') {
+  currentConfig = developmentConfigPath;
+}
+/* function requiredProcessEnv(name) {
   if(!process.env[name]) {
     throw new Error('You must set the ' + name + ' environment variable');
   }
@@ -13,7 +21,7 @@ import _ from 'lodash';
 
 // All configurations will extend these options
 // ============================================
-var all = {
+const all = {
   env: process.env.NODE_ENV,
 
   // Root path of server
@@ -33,40 +41,40 @@ var all = {
 
   // Secret for session, you will want to change this and make it an environment variable
   secrets: {
-    session: 'work-secret'
+    session: 'work-secret',
   },
 
   // MongoDB connection options
   mongo: {
     options: {
       db: {
-        safe: true
-      }
-    }
+        safe: true,
+      },
+    },
   },
 
   facebook: {
     clientID: process.env.FACEBOOK_ID || 'id',
     clientSecret: process.env.FACEBOOK_SECRET || 'secret',
-    callbackURL: `${process.env.DOMAIN || ''}/auth/facebook/callback`
+    callbackURL: `${process.env.DOMAIN || ''}/auth/facebook/callback`,
   },
 
   twitter: {
     clientID: process.env.TWITTER_ID || 'id',
     clientSecret: process.env.TWITTER_SECRET || 'secret',
-    callbackURL: `${process.env.DOMAIN || ''}/auth/twitter/callback`
+    callbackURL: `${process.env.DOMAIN || ''}/auth/twitter/callback`,
   },
 
   google: {
     clientID: process.env.GOOGLE_ID || 'id',
     clientSecret: process.env.GOOGLE_SECRET || 'secret',
-    callbackURL: `${process.env.DOMAIN || ''}/auth/google/callback`
-  }
+    callbackURL: `${process.env.DOMAIN || ''}/auth/google/callback`,
+  },
 };
 
 // Export the config object based on the NODE_ENV
 // ==============================================
 module.exports = _.merge(
   all,
-  require('./shared'),
-  require(`./${process.env.NODE_ENV}.js`) || {});
+  sharedConfig,
+  currentConfig || {});

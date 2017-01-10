@@ -4,30 +4,30 @@
 
 'use strict';
 
-import {EventEmitter} from 'events';
+import { EventEmitter } from 'events';
 import Thing from './thing.model';
-var ThingEvents = new EventEmitter();
+
+const ThingEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)
 ThingEvents.setMaxListeners(0);
 
 // Model events
-var events = {
+const events = {
   save: 'save',
-  remove: 'remove'
+  remove: 'remove',
 };
 
-// Register the event emitter to the model events
-for(var e in events) {
-  let event = events[e];
-  Thing.schema.post(e, emitEvent(event));
-}
-
 function emitEvent(event) {
-  return function(doc) {
-    ThingEvents.emit(`${event}:${doc._id}`, doc);
+  return (doc) => {
+    ThingEvents.emit(`${event}:${doc._id}`, doc); // eslint-disable-line no-underscore-dangle
     ThingEvents.emit(event, doc);
   };
 }
+
+// Register the event emitter to the model events
+Object.keys(events).forEach((key) => {
+  Thing.schema.post(key, emitEvent(events[key]));
+});
 
 export default ThingEvents;

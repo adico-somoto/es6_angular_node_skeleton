@@ -1,5 +1,7 @@
 'use strict';
 /*eslint-env node*/
+import gConfig from './gulp-config';
+
 var webpack = require('webpack');
 var autoprefixer = require('autoprefixer');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -9,6 +11,21 @@ var CommonsChunkPlugin = webpack.optimize.CommonsChunkPlugin;
 var fs = require('fs');
 var path = require('path');
 var ForkCheckerPlugin = require('awesome-typescript-loader').ForkCheckerPlugin;
+const paths = gConfig.paths;
+const distPath = paths.dist;
+const clientPath = paths.client.base;
+const clientDistPath = `${distPath}/${clientPath}`;
+const appsPath = `${clientDistPath}/apps`;
+
+/********************
+ * Helpers
+ ********************/
+function getFolders(dir) {
+  return fs.readdirSync(dir)
+    .filter(function(file) {
+      return fs.statSync(path.join(dir, file)).isDirectory();
+    });
+}
 
 module.exports = function makeWebpackConfig(options) {
     /**
@@ -37,8 +54,12 @@ module.exports = function makeWebpackConfig(options) {
     if(TEST) {
         config.entry = {};
     } else {
+      var folders = getFolders(appsPath);
+
         config.entry = {
-            app: './client/app/app.js',
+            mo: './client/apps/mo/app/app.js',
+            yo: './client/apps/yo/app/app.js',
+            //app: entriesArr,
             polyfills: './client/polyfills.js',
             vendor: [
                 'angular',
@@ -54,6 +75,11 @@ module.exports = function makeWebpackConfig(options) {
                 'lodash'
             ]
         };
+
+      config.folders = folders.map(function(folder) {
+        return `./client/apps/${folder}/app/app.js`
+      });
+
     }
 
     /**
@@ -130,7 +156,7 @@ module.exports = function makeWebpackConfig(options) {
                 : /@ngInject/;
             return regex.test(commentContents);
         }
-    }
+    };
 
     // Initialize module
     config.module = {
@@ -199,7 +225,8 @@ module.exports = function makeWebpackConfig(options) {
             loaders: ['style', 'css', 'sass'],
             include: [
                 path.resolve(__dirname, 'node_modules/bootstrap-sass/assets/stylesheets/*.scss'),
-                path.resolve(__dirname, 'client/app/app.scss')
+                path.resolve(__dirname, 'client/apps/mo/app/app.scss'),
+                path.resolve(__dirname, 'client/apps/yo/app/app.scss')
             ]
 
 
@@ -280,14 +307,24 @@ module.exports = function makeWebpackConfig(options) {
     // Reference: https://github.com/ampedandwired/html-webpack-plugin
     // Render index.html
     let htmlConfig = {
-        template: 'client/_index.html',
-        filename: '../client/index.html',
+        template: 'client/apps/yo/_index.html',
+        filename: '../client/apps/yo/index.html',
         alwaysWriteToDisk: true
-    }
+    };
     config.plugins.push(
-      new HtmlWebpackPlugin(htmlConfig),
-      new HtmlWebpackHarddiskPlugin()
+      new HtmlWebpackPlugin(htmlConfig)//,
+      //new HtmlWebpackHarddiskPlugin()
     );
+
+  htmlConfig = {
+    template: 'client/apps/mo/_index.html',
+    filename: '../client/apps/mo/index.html',
+    alwaysWriteToDisk: true
+  };
+  config.plugins.push(
+    new HtmlWebpackPlugin(htmlConfig),
+    new HtmlWebpackHarddiskPlugin()
+  );
 
     // Add build specific plugins
     if(BUILD) {

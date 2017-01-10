@@ -1,12 +1,13 @@
 'use strict';
-/*eslint no-process-env:0*/
+
+/* eslint no-process-env:0*/
 
 // Test specific configuration
 // ===========================
 module.exports = {
   // MongoDB connection options
   mongo: {
-    uri: 'mongodb://localhost/work-test'
+    uri: 'mongodb://localhost/work-test',
   },
   sequelize: {
     uri: 'sqlite://',
@@ -14,8 +15,8 @@ module.exports = {
       logging: false,
       storage: 'test.sqlite',
       define: {
-        timestamps: false
-      }
-    }
-  }
+        timestamps: false,
+      },
+    },
+  },
 };
