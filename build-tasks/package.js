@@ -125,7 +125,8 @@ const copyAssets = () => {
 
 const copyServer = () => {
   return gulp.src([
-    'package.json'
+    'package.json',
+    'server/mockData/**/*'
   ], {cwdbase: true})
     .pipe(gulp.dest(distPath));
 };

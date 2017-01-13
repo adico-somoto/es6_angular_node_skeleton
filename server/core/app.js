@@ -5,13 +5,12 @@ import path from 'path';
 import bodyParser from 'body-parser';
 // import fs from 'fs';
 import multer from 'multer';
-import productsGen from './products';
+import ProductsSpec from './productSpec/productsSpec';
 // import project from '../app/selectProject';
 
 // TODO:
 // import routes from '../pdf/routes/index';
 const app = express();
-const productsMod = productsGen(app);
 
 // var products = JSON.parse( fs.readFileSync("typesPref.json") );
 
@@ -24,6 +23,16 @@ app.set('view engine', 'ejs');
 // else {
 app.set('views', 'server');
 // }
+
+app.use('/', express.static(path.resolve(__dirname, '../mockData')));
+
+ProductsSpec.initProducts((err,products) => {
+  if(err) {
+    throw err;
+  }
+
+  app.set('productsSpecs', products);
+});
 
 app.get('/', (req, res) => {
   let host = req.get('host');

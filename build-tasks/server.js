@@ -90,7 +90,7 @@ const lintServerTest = () => {
 };
 
 const transpileServer = () => {
-  return gulp.src(_.union(paths.server.scripts, paths.server.json))
+  return gulp.src(_.union(paths.server.scripts, paths.server.json, paths.server.dataJson))
     .pipe(transpileServerExec())
     .pipe(gulp.dest(`${paths.dist}/${serverPath}`));
 };

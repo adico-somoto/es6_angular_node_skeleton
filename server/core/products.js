@@ -51,9 +51,31 @@ class VanillaSpec {
   }
 }
 
-class Brand {
+class Brands {
   constructor() {
+    this.list = {};
+  }
 
+  * [Symbol.iterator]() {
+    for (const brand of this.list) {
+      yield brand;
+    }
+  }
+
+  getBrandByUrl(url) {
+
+  }
+
+  printBrands() {
+    for (const x of this) {
+      console.log(x);
+    }
+  }
+}
+
+class Brand {
+  constructor(title) {
+    this.title = title;
   }
 }
 

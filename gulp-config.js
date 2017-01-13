@@ -27,6 +27,7 @@ const paths = {
       `!${serverPath}/config/local.env.sample.js`
     ],
     json: [`${serverPath}/**/*.json`],
+    dataJson: [`!${serverPath}/mockData/*.json`],
     test: {
       integration: [`${serverPath}/**/*.integration.js`, 'mocha.global.js'],
       unit: [`${serverPath}/**/*.spec.js`, 'mocha.global.js']
