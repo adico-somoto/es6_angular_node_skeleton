@@ -21,11 +21,34 @@ const appsPath = `${clientDistPath}/apps`;
 const revManifestPath = paths.client.revManifest;
 
 const webpackDev = () => {
-  const webpackDevConfig = makeWebpackConfig({ DEV: true });
-  return gulp.src(webpackDevConfig.entry.app)
-    .pipe(plugins.plumber())
-    .pipe(webpack(webpackDevConfig))
-    .pipe(gulp.dest(buildPath));
+  const appsPath = `src/client/apps`;
+  const folders = getFolders(appsPath);
+
+  console.dir(folders);
+
+  let webpackCompileList = folders.map(function(item) {
+    'use strict';
+    console.log('(frontend-build) Generating: ', item);
+    const appHtmlConfig = './src/client/apps/' + item + '/build/html-config';
+    let frontendConfig =
+      generateConfig(item, htmlConfig(item, require(appHtmlConfig)));
+    return Q.nfcall(genWebpackWithConfig(frontendConfig, item)());
+  });
+
+  return Q.all(webpackCompileList, function(results) {
+    'use strict';
+    if(done) {
+      done();
+    }
+    console.log('(frontend-build) Generation Complete');
+  });
+
+
+  //const webpackDevConfig = makeWebpackConfig({ DEV: true });
+  //return gulp.src(webpackDevConfig.entry.app)
+  //  .pipe(plugins.plumber())
+  //  .pipe(webpack(webpackDevConfig))
+  //  .pipe(gulp.dest(buildPath));
 };
 
 const webpackDist = () => {

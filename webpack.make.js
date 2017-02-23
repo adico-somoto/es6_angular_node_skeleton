@@ -27,6 +27,98 @@ function getFolders(dir) {
     });
 }
 
+function getDefaultHtmlConfig(vanillaName) {
+  'use strict';
+  return {
+    filename: '../views/index.ejs',
+    template: require('html-webpack-template'),
+    // template: '../views/index.ejs',
+    templateContent: function(templateParams, compilation) {
+      const tmpl = require('blueimp-tmpl');
+      tmpl.cache['index'] = null;
+      tmpl.load = function(id) {
+        debugger;
+        const filename = 'src/client/apps/' + vanillaName + '/views/' + id + '.ejs';
+        console.log('Loading ' + filename);
+        return fs.readFileSync(filename, 'utf8');
+        tmpl.cache['index'] = null;
+      };
+
+      return tmpl('index', templateParams);
+    },
+    inject: false,
+    // minify: {
+    //   removeAttributeQuotes: true,
+    //   collapseWhitespace: true,
+    //   collapseInlineTagWhitespace: true,
+    //   decodeEntities: true,
+    //   html5: true,
+    //   removeComments: true,
+    //   removeRedundantAttributes: true,
+    // },
+    hash: true,
+    cache: true,
+    showErrors: true,
+    xhtml: true,
+  };
+}
+
+/********************
+ * Helpers
+ ********************/
+function getFolders(dir) {
+  return fs.readdirSync(dir)
+    .filter(function(file) {
+      return fs.statSync(path.join(dir, file)).isDirectory() && file.indexOf('shared') === -1;
+    });
+}
+
+function config(overrides) {
+  return deepmerge(defaultConfig, overrides || {});
+}
+
+function htmlConfig(vanillaName, overrides) {
+  return deepmerge(getDefaultHtmlConfig(vanillaName), overrides || {});
+}
+
+function generateConfig(vanillaName, htmlPluginConfig) {
+  'use strict';
+  return config({
+    context: path.resolve(__dirname, 'src/client/apps/'+vanillaName+'/static'),
+    entry: {
+      'app': './index.js',
+      'vendor': require('./src/client/apps/' + vanillaName + '/build/vendor'),
+    },
+    output: {
+      filename: '[name].[chunkhash].js',
+      path: path.resolve(__dirname, 'dist/client/apps/'+vanillaName+'/static'),
+    },
+    plugins: [
+      new HtmlWebpackPlugin(htmlPluginConfig),
+    ],
+  });
+}
+
+function onBuild() {
+  return function(err, stats) {
+    if(err) {
+      console.log('(frontend-build) Execution Failed!!!');
+      console.log('Error', err);
+    } else {
+      console.log('(frontend-build) Execution Succeeded!!!');
+      console.log(stats.toString());
+    }
+  };
+}
+
+function genWebpackWithConfig(frontendConfig, item) {
+  'use strict';
+  return function() {
+    console.log('(frontend-build) Executing webpack for: ', item);
+    webpack(frontendConfig).run(onBuild());
+  };
+}
+
 module.exports = function makeWebpackConfig(options) {
     /**
      * Environment type
@@ -67,7 +159,6 @@ module.exports = function makeWebpackConfig(options) {
                 'angular-aria',
                 'angular-cookies',
                 'angular-resource',
-
                 'angular-sanitize',
                 'angular-socket-io',
                 'angular-ui-bootstrap',
@@ -309,20 +400,24 @@ module.exports = function makeWebpackConfig(options) {
     let htmlConfig = {
         template: 'client/apps/yo/_index.html',
         filename: '../client/apps/yo/index.html',
-        alwaysWriteToDisk: true
+        alwaysWriteToDisk: true,
+        chunks: ['yo']
     };
     config.plugins.push(
       new HtmlWebpackPlugin(htmlConfig)//,
       //new HtmlWebpackHarddiskPlugin()
     );
 
-  htmlConfig = {
+  let htmlConfig2 = {
     template: 'client/apps/mo/_index.html',
     filename: '../client/apps/mo/index.html',
-    alwaysWriteToDisk: true
+    alwaysWriteToDisk: true,
+    chunks: ['mo']
   };
   config.plugins.push(
-    new HtmlWebpackPlugin(htmlConfig),
+    new HtmlWebpackPlugin(htmlConfig2)
+  );
+  config.plugins.push(
     new HtmlWebpackHarddiskPlugin()
   );
 

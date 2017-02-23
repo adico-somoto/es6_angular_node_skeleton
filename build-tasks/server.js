@@ -54,7 +54,7 @@ const transpileServerExec = lazypipe()
 const startServer = () => {
   process.env.NODE_ENV = process.env.NODE_ENV || 'development';
   const config = require(`../${serverPath}/config/environment`);
-  nodemon(`-w ${serverPath} ${serverPath}`)
+  nodemon(`-w ${serverPath} ${serverPath} --exec ./node_modules/.bin/babel-node --presets es2015,stage-2`)
     .on('log', onServerLog);
 };
 

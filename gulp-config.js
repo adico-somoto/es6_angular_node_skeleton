@@ -1,6 +1,6 @@
 const pkg = require('./package.json');
-const clientPath = 'client';
-const serverPath = 'server';
+const clientPath = 'src/client';
+const serverPath = 'src/server';
 const distPath = 'dist';
 
 const paths = {
