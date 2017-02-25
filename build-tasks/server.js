@@ -10,6 +10,7 @@ import gConfig from '../gulp-config';
 const plugins = gulpLoadPlugins();
 const paths = gConfig.paths;
 const serverPath = gConfig.paths.server.base;
+const distServerPath = serverPath.replace('src/', '');
 const distPath = gConfig.paths.dist;
 const serverScripts = paths.server.scripts;
 const serverTestScripts = paths.server.test;
@@ -92,7 +93,7 @@ const lintServerTest = () => {
 const transpileServer = () => {
   return gulp.src(_.union(paths.server.scripts, paths.server.json, paths.server.dataJson))
     .pipe(transpileServerExec())
-    .pipe(gulp.dest(`${paths.dist}/${serverPath}`));
+    .pipe(gulp.dest(`${paths.dist}/${distServerPath}`));
 };
 
 const watch = () => {
